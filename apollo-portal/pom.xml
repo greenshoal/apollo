@@ -3,12 +3,12 @@
 	xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/maven-v4_0_0.xsd">
 	<parent>
 		<groupId>com.ctrip.framework.apollo</groupId>
-		<artifactId>apollo</artifactId>
+		<artifactId>apollo4</artifactId>
 		<version>1.4.0-SNAPSHOT</version>
 		<relativePath>../pom.xml</relativePath>
 	</parent>
 	<modelVersion>4.0.0</modelVersion>
-	<artifactId>apollo-portal</artifactId>
+	<artifactId>apollo-portal4</artifactId>
 	<name>Apollo Portal</name>
 	<properties>
 		<github.path>${project.artifactId}</github.path>
@@ -20,11 +20,11 @@
 		</dependency>
 		<dependency>
 			<groupId>com.ctrip.framework.apollo</groupId>
-			<artifactId>apollo-common</artifactId>
+			<artifactId>apollo-common4</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.ctrip.framework.apollo</groupId>
-			<artifactId>apollo-openapi</artifactId>
+			<artifactId>apollo-openapi4</artifactId>
 		</dependency>
 		<dependency>
 			<groupId>com.h2database</groupId>

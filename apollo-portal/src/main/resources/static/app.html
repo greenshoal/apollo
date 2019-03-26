@@ -56,6 +56,15 @@
                             <small>(建议格式 xx-yy-zz 例:apollo-server)</small>
                         </div>
                     </div>
+                    <div class="form-group" valdr-form-group>
+                        <label class="col-sm-3 control-label">
+                            <apollorequiredfield></apollorequiredfield>
+                            应用密钥</label>
+                        <div class="col-sm-5">
+                            <input type="text" class="form-control" name="secretKey" ng-model="app.secretKey">
+                            <small>(非必填，用于公网环境下通讯签名验证)</small>
+                        </div>
+                    </div>
                     <div class="form-group">
                         <label class="col-sm-3 control-label">
                             <apollorequiredfield></apollorequiredfield>

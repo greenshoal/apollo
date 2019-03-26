@@ -41,8 +41,19 @@ public class App extends BaseEntity {
   @NotBlank(message = "OwnerEmail cannot be blank")
   @Column(name = "OwnerEmail", nullable = false)
   private String ownerEmail;
+  
+  @Column(name = "SecretKey", nullable = true)
+  private String secretKey;
 
-  public String getAppId() {
+  public String getSecretKey() {
+	return secretKey;
+}
+
+public void setSecretKey(String secretKey) {
+	this.secretKey = secretKey;
+}
+
+public String getAppId() {
     return appId;
   }
 
@@ -95,7 +106,7 @@ public class App extends BaseEntity {
         .add("orgId", orgId)
         .add("orgName", orgName)
         .add("ownerName", ownerName)
-        .add("ownerEmail", ownerEmail).toString();
+        .add("ownerEmail", ownerEmail).add("secretKey", secretKey).toString();
   }
 
   public static class Builder {
@@ -132,6 +143,11 @@ public class App extends BaseEntity {
 
     public Builder ownerEmail(String ownerEmail) {
       app.setOwnerEmail(ownerEmail);
+      return this;
+    }
+
+    public Builder secretKey(String secretKey) {
+      app.setSecretKey(secretKey);
       return this;
     }
 

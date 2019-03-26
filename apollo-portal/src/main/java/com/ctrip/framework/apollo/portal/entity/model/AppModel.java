@@ -26,6 +26,8 @@ public class AppModel {
 
   @NotBlank(message = "ownerName cannot be blank")
   private String ownerName;
+  
+  private String secretKey;
 
   private Set<String> admins;
 
@@ -76,4 +78,12 @@ public class AppModel {
   public void setAdmins(Set<String> admins) {
     this.admins = admins;
   }
+
+public String getSecretKey() {
+	return secretKey;
+}
+
+public void setSecretKey(String secretKey) {
+	this.secretKey = secretKey;
+}
 }

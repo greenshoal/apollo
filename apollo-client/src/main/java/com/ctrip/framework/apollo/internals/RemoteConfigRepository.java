@@ -1,6 +1,7 @@
 package com.ctrip.framework.apollo.internals;
 
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
@@ -294,7 +295,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     }
     
 	try {
-		signParam(queryParams);
+		signParam(queryParams, appId, cluster, namespace);
 	} catch (Exception e) {
 		Tracer.logEvent("ApolloConfigException", ExceptionUtil.getDetailMessage(e));
 		return null;
@@ -311,7 +312,7 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     return uri + pathExpanded;
   }
   
-  private void signParam(Map<String, String> queryParams) throws Exception {
+  private void signParam(Map<String, String> queryParams, String appId, String cluster, String namespace) throws Exception {
 	  String appSecretKey = m_configUtil.getAppSecretKey();
 	  if(appSecretKey != null) {
 		  String nonestr = SecretUtil.generateNonceStr();
@@ -319,7 +320,12 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
 		  queryParams.put("nonestr", nonestr);
 		  queryParams.put("timestamp", timestamp);
 		  
-		  String generateSignature = SecretUtil.generateSignature(queryParams, appSecretKey);
+		  HashMap<String, String> hm = new HashMap<String, String>(queryParams);
+		  hm.put("appId", appId);
+		  hm.put("cluster", cluster);
+		  hm.put("namespace", namespace);
+		  
+		  String generateSignature = SecretUtil.generateSignature(hm, appSecretKey);
 		  queryParams.put("sign", generateSignature);
 	  }
   }
