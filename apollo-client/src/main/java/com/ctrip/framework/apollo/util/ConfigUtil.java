@@ -1,9 +1,10 @@
 package com.ctrip.framework.apollo.util;
 
-import com.google.common.util.concurrent.RateLimiter;
 import java.io.File;
+import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.commons.io.FileUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -13,6 +14,7 @@ import com.ctrip.framework.apollo.core.enums.Env;
 import com.ctrip.framework.apollo.core.enums.EnvUtils;
 import com.ctrip.framework.foundation.Foundation;
 import com.google.common.base.Strings;
+import com.google.common.util.concurrent.RateLimiter;
 
 /**
  * @author Jason Song(song_s@ctrip.com)
@@ -199,6 +201,44 @@ public class ConfigUtil {
 
   public TimeUnit getOnErrorRetryIntervalTimeUnit() {
     return onErrorRetryIntervalTimeUnit;
+  }
+  
+  public String getAppSecretKey() throws IOException {
+	  String appSecretKeyPath = getAppSecretKeyPath();
+	  File file = new File(appSecretKeyPath);
+	  if(file.exists()) {
+		  return FileUtils.readFileToString(file, "UTF-8");
+	  }
+	
+	  return null;
+  }
+  
+  private String getAppSecretKeyPath() {
+	String secretKeyPath = getCustomizedAppSecretKeyPath();
+
+	if (!Strings.isNullOrEmpty(secretKeyPath)) {
+		return secretKeyPath + File.separator + getAppId() + File.separator + "secret.key";
+	}
+	
+	secretKeyPath = isOSWindows() ? "C:\\opt\\data\\%s\\secret.key" : "/opt/data/%s/secret.key";
+	secretKeyPath = String.format(secretKeyPath, getAppId());
+  
+	return secretKeyPath;
+  }
+  
+  public String getCustomizedAppSecretKeyPath() {
+	// 1. Get from System Property
+    String secretKeyPath = System.getProperty("apollo.secretKeyPath");
+    if (Strings.isNullOrEmpty(secretKeyPath)) {
+      // 2. Get from OS environment variable
+      secretKeyPath = System.getenv("APOLLO_SECRETKEYPATH");
+    }
+    if (Strings.isNullOrEmpty(secretKeyPath)) {
+      // 3. Get from server.properties
+      secretKeyPath = Foundation.server().getProperty("apollo.secretKeyPath", null);
+    }
+
+    return secretKeyPath;
   }
 
   public String getDefaultLocalCacheDir() {

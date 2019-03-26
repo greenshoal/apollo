@@ -1,6 +1,5 @@
 package com.ctrip.framework.apollo.internals;
 
-import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import java.util.Collections;
 import java.util.List;
 import java.util.Map;
@@ -23,6 +22,7 @@ import com.ctrip.framework.apollo.core.dto.ServiceDTO;
 import com.ctrip.framework.apollo.core.schedule.ExponentialSchedulePolicy;
 import com.ctrip.framework.apollo.core.schedule.SchedulePolicy;
 import com.ctrip.framework.apollo.core.utils.ApolloThreadFactory;
+import com.ctrip.framework.apollo.enums.ConfigSourceType;
 import com.ctrip.framework.apollo.exceptions.ApolloConfigException;
 import com.ctrip.framework.apollo.exceptions.ApolloConfigStatusCodeException;
 import com.ctrip.framework.apollo.tracer.Tracer;
@@ -204,6 +204,10 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
 
         url = assembleQueryConfigUrl(configService.getHomepageUrl(), appId, cluster, m_namespace,
                 dataCenter, m_remoteMessages.get(), m_configCache.get());
+        
+        if(url == null) {
+        	continue;
+        }
 
         logger.debug("Loading config from {}", url);
         HttpRequest request = new HttpRequest(url);
@@ -288,6 +292,13 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
     if (remoteMessages != null) {
       queryParams.put("messages", queryParamEscaper.escape(gson.toJson(remoteMessages)));
     }
+    
+	try {
+		signParam(queryParams);
+	} catch (Exception e) {
+		Tracer.logEvent("ApolloConfigException", ExceptionUtil.getDetailMessage(e));
+		return null;
+	}
 
     String pathExpanded = String.format(path, pathParams.toArray());
 
@@ -298,6 +309,19 @@ public class RemoteConfigRepository extends AbstractConfigRepository {
       uri += "/";
     }
     return uri + pathExpanded;
+  }
+  
+  private void signParam(Map<String, String> queryParams) throws Exception {
+	  String appSecretKey = m_configUtil.getAppSecretKey();
+	  if(appSecretKey != null) {
+		  String nonestr = SecretUtil.generateNonceStr();
+		  String timestamp = String.valueOf(SecretUtil.getCurrentTimestampMs());
+		  queryParams.put("nonestr", nonestr);
+		  queryParams.put("timestamp", timestamp);
+		  
+		  String generateSignature = SecretUtil.generateSignature(queryParams, appSecretKey);
+		  queryParams.put("sign", generateSignature);
+	  }
   }
 
   private void scheduleLongPollingRefresh() {
